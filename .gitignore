@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment & secrets (never commit real keys)
+.env
+.env.*
+!.env.example
+
+# OS & editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Logs & debug
+*.log
+npm-debug.log*
+pnpm-debug.log*
