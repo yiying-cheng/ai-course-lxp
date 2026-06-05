@@ -17,8 +17,7 @@ Based on [virtual-try-on-product-spec.md](../virtual-try-on-product-spec.md).
 ```bash
 cd virtual-try-on
 pnpm install
-cp .env.example .env.local
-# Add ARK_API_KEY from Volcengine Ark console — or set TRY_ON_MOCK=true
+# Create .env.local with the variables listed below
 pnpm dev
 ```
 

@@ -5,7 +5,6 @@ node_modules/
 # Environment & secrets (never commit real keys)
 .env
 .env.*
-!.env.example
 
 # OS & editors
 .DS_Store
