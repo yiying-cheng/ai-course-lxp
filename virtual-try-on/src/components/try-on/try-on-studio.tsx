@@ -122,9 +122,9 @@ export function TryOnStudio() {
           Virtual Try-On
         </p>
         <h1 className="text-[40px] font-semibold leading-tight tracking-tight text-[#1d1d1f] md:text-[48px]">
-          See it on you.
+          See it on you
           <br className="hidden sm:block" />
-          Before you buy.
+          Before you buy
         </h1>
         <p className="mx-auto max-w-xl text-[19px] leading-relaxed text-[#86868b]">
           Upload your photo and any garment image. Get a clear preview for smarter shopping
