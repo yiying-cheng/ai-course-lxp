@@ -57,23 +57,28 @@ export async function sendWelcomeEmail(input: {
   email: string;
   name: string | null;
 }) {
-  const resend = getResendClient();
-  if (!resend) {
-    console.warn('[email] RESEND_API_KEY not set — skipping welcome email');
-    return { sent: false as const, reason: 'missing_api_key' };
+  try {
+    const resend = getResendClient();
+    if (!resend) {
+      console.warn('[email] RESEND_API_KEY not set — skipping welcome email');
+      return { sent: false as const, reason: 'missing_api_key' };
+    }
+
+    const { error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: input.email,
+      subject: 'Welcome to FitPreview',
+      html: welcomeEmailHtml(input.name),
+    });
+
+    if (error) {
+      console.error('[email] Failed to send welcome email:', error);
+      return { sent: false as const, reason: error.message };
+    }
+
+    return { sent: true as const };
+  } catch (err) {
+    console.error('[email] Unexpected error sending welcome email:', err);
+    return { sent: false as const, reason: 'unexpected_error' };
   }
-
-  const { error } = await resend.emails.send({
-    from: getFromAddress(),
-    to: input.email,
-    subject: 'Welcome to FitPreview',
-    html: welcomeEmailHtml(input.name),
-  });
-
-  if (error) {
-    console.error('[email] Failed to send welcome email:', error);
-    return { sent: false as const, reason: error.message };
-  }
-
-  return { sent: true as const };
 }

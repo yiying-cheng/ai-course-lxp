@@ -33,7 +33,11 @@ export async function POST(request: Request) {
 
     await setSessionCookie({ userId: user.id, email: user.email });
 
-    void sendWelcomeEmail({ email: user.email, name: user.name });
+    try {
+      await sendWelcomeEmail({ email: user.email, name: user.name });
+    } catch (err) {
+      console.error('[email] Welcome email failed during registration:', err);
+    }
 
     return NextResponse.json({
       success: true,
