@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
 import { loginUser } from '@/services/auth.service';
 import { setSessionCookie } from '@/lib/session';
+import { getRequestIp, verifyTurnstileToken } from '@/lib/turnstile';
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { email?: string; password?: string };
+    const body = (await request.json()) as {
+      email?: string;
+      password?: string;
+      turnstileToken?: string;
+    };
+
+    const turnstile = await verifyTurnstileToken(body.turnstileToken, getRequestIp(request));
+    if (!turnstile.ok) {
+      return NextResponse.json({ success: false, error: turnstile.error }, { status: 400 });
+    }
 
     if (!body.email || !body.password) {
       return NextResponse.json(

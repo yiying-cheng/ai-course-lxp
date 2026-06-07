@@ -13,6 +13,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.5.2",
     "@neondatabase/serverless": "^1.1.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
@@ -24,6 +25,7 @@
     "next": "16.2.7",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.12.4",
     "tailwind-merge": "^3.6.0",
     "uuid": "^14.0.0"
   },

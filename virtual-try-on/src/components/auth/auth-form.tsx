@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
+import { TurnstileField, isTurnstileConfigured } from '@/components/auth/turnstile-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -12,17 +14,28 @@ interface AuthFormProps {
 
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
+  const turnstileRef = useRef<TurnstileInstance>(null);
+  const turnstileRequired = isTurnstileConfigured();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const isSignUp = mode === 'sign-up';
+  const canSubmit = !turnstileRequired || Boolean(turnstileToken);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (turnstileRequired && !turnstileToken) {
+      setError('Please complete the security check.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -31,13 +44,17 @@ export function AuthForm({ mode }: AuthFormProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
-          isSignUp ? { email, password, name: name || undefined } : { email, password },
+          isSignUp
+            ? { email, password, name: name || undefined, turnstileToken }
+            : { email, password, turnstileToken },
         ),
       });
       const data = await res.json();
 
       if (!res.ok || !data.success) {
         setError(data.error ?? 'Something went wrong.');
+        setTurnstileToken(null);
+        turnstileRef.current?.reset();
         return;
       }
 
@@ -45,6 +62,8 @@ export function AuthForm({ mode }: AuthFormProps) {
       router.refresh();
     } catch {
       setError('Network error. Please try again.');
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -90,11 +109,18 @@ export function AuthForm({ mode }: AuthFormProps) {
           minLength={8}
         />
 
+        <TurnstileField turnstileRef={turnstileRef} onToken={setTurnstileToken} />
+
         {error && (
           <p className="rounded-xl bg-[#fff2f2] px-4 py-3 text-sm text-[#bf4800]">{error}</p>
         )}
 
-        <Button type="submit" size="lg" className="mt-2 w-full rounded-full" disabled={loading}>
+        <Button
+          type="submit"
+          size="lg"
+          className="mt-2 w-full rounded-full"
+          disabled={loading || !canSubmit}
+        >
           {loading ? 'Please wait…' : isSignUp ? 'Create Account' : 'Sign In'}
         </Button>
       </form>
